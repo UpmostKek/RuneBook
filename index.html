@@ -26,7 +26,7 @@
     var freezer = require('./src/state');
 
     var _ = require('lodash');
-    
+
     const locales = require('./src/locales')
     i18n.dictionary(locales);
 
@@ -41,8 +41,16 @@
     require('./tags/update-button.tag');
     require('./tags/settings-panel.tag');
     require('./tags/changelog-modal.tag');
-    
+
     riot.mount('runebook', freezer.get());
+
+    // Open links externally by default
+    const {shell} = require('electron');
+    $(document).on('click', 'a[href^="http"]', function (event) {
+    	event.preventDefault();
+    	shell.openExternal(this.href);
+    });
+
   </script>
 
 </body>

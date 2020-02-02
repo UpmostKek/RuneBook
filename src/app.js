@@ -1,4 +1,4 @@
-const {ipcRenderer, remote, shell} = require('electron');
+const {ipcRenderer, remote} = require('electron');
 const path = require('path');
 const LCUConnector = require('lcu-connector');
 const request = require('request');
@@ -440,10 +440,4 @@ freezer.on('autochamp:enable', () => {
 freezer.on('autochamp:disable', () => {
 	freezer.get().set('autochamp', false);
 	settings.set('autochamp', false);
-});
-
-// Open links externally by default
-$(document).on('click', 'a[href^="http"]', function (event) {
-	event.preventDefault();
-	shell.openExternal(this.href);
 });
