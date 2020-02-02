@@ -28,9 +28,8 @@ if (isDev) {
 
 	const __hasProp = {}.hasOwnProperty;
 
-	for (let i = 0; i < plugins.length; i++) {
-		const name = plugins[i];
-		const include = require(`./${name}.js`);
+	for (const plugin in plugins) {
+		const include = require(`./${plugin}.js`);
 		for (const func in include) {
 			if (!__hasProp.call(include, func) || !include[func].active) {
 				continue;
