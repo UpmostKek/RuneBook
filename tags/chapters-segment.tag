@@ -5,12 +5,12 @@
 
     <div class="ui top attached pointing small borderless menu" style="margin-top: 0;">
       <virtual each={ val, key in opts.plugins.local }>
-        <a class={ opts.tab.active == key ? "item active" : "item" } data-tab={key} onclick={ switchTab }>
+        <a class={ opts.tab.active === key ? "item active" : "item" } data-tab={key} onclick={ switchTab }>
           { i18n.localise(val.name) }
         </a>
       </virtual>
       <virtual each={ val, key in opts.plugins.remote }>
-        <a class={ opts.tab.active == key ? "item active" : "item" } data-tab={key} onclick={ switchTab }>
+        <a class={ opts.tab.active === key ? "item active" : "item" } data-tab={key} onclick={ switchTab }>
           { i18n.localise(val.name) }
         </a>
       </virtual>
@@ -18,9 +18,9 @@
     </div>
 
     <div style="flex: 1; display: flex; flex-direction: column;" class={ opts.tab.loaded ? "ui bottom attached tab segment active" : "ui bottom attached tab segment active" }>
-      <div if={ opts.tab.loaded } class={ opts.current.champion && !_.isEmpty(opts.current.champ_data.pages.toJS()) ? "ui one column centered grid" : "ui one column middle aligned centered grid" } style="flex: 1; height: 150px;">
+      <div if={ opts.tab.loaded } class={ opts.current.champion && !_.isEmpty(opts.current.champdata.pages.toJS()) ? "ui one column centered grid" : "ui one column middle aligned centered grid" } style="flex: 1; height: 150px;">
         <div class="row">
-          <div class="column" style={ opts.current.champion && !_.isEmpty(opts.current.champ_data.pages.toJS()) ? "height: 100%;" : "" }>
+          <div class="column" style={ opts.current.champion && !_.isEmpty(opts.current.champdata.pages.toJS()) ? "height: 100%;" : "" }>
             
             <h1 if={ !opts.current.champion } class="ui center aligned icon header">
               <i class="open book icon"></i>

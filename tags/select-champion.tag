@@ -107,7 +107,7 @@
 
       var request = require(`request`);
       request.get(`https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/champion.json`, (error, response, ddres) => {
-        if (error || response.statusCode != 200) return;
+        if (error || response.statusCode !== 200) return;
         
         ddres = handleDDRes2(JSON.parse(ddres));
 
@@ -163,7 +163,7 @@
       var res = {
         results: {}
       };
-      if(!ddres || ddres.type != "champion") return res;
+      if(!ddres || ddres.type !== "champion") return res;
       res.success = true;
 
       $.each(ddres.data, function(index, item) {
@@ -175,12 +175,12 @@
 
     function handleDDRes2(ddres) {
       var res = [];
-      if(!ddres || ddres.type != "champion") return res;
+      if(!ddres || ddres.type !== "champion") return res;
 
       $.each(ddres.data, function(index, item) {
         res.push({ id: item.id, title: item.name });
-        if(item.name == "Blitzcrank") res[res.length - 1].info = "22";
-        if(item.name == "Warwick") res[res.length - 1].info = "urf";
+        if(item.name === "Blitzcrank") res[res.length - 1].info = "22";
+        if(item.name === "Warwick") res[res.length - 1].info = "urf";
       });
 
       return res;

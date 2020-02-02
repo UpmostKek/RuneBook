@@ -1,11 +1,11 @@
 const cheerio = require('cheerio');
 const request = require('request');
-const { upperFirst } = require('lodash');
+const {upperFirst} = require('lodash');
 
 const url = 'http://www.op.gg/champion/';
 
 function extractRunePagesFromElement($, champion, position) {
-  const getPerkIdFromImg = (_, elem) =>
+	const getPerkIdFromImg = (_, elem) =>
     $(elem)
       .attr('src')
       .split('/')
@@ -13,132 +13,132 @@ function extractRunePagesFromElement($, champion, position) {
       .pop()
       .split('.')[0];
 
-  return (runePageElement, index) => {
-    const stats = $(runePageElement)
+	return (runePageElement, index) => {
+		const stats = $(runePageElement)
       .find('.champion-overview__stats strong')
       .map((i, elem) => $(elem).text())
       .get();
 
-    const name = `${champion} ${upperFirst(position)} PR${stats[0]} WR${stats[1]}`;
+		const name = `${champion} ${upperFirst(position)} PR${stats[0]} WR${stats[1]}`;
 
-    const styles = $(runePageElement)
+		const styles = $(runePageElement)
       .find('.champion-overview__data .perk-page .perk-page__item--mark img')
       .map(getPerkIdFromImg)
       .get();
 
-    // normal runes
-    let selectedPerkIds = $(runePageElement)
+    // Normal runes
+		let selectedPerkIds = $(runePageElement)
       .find('.champion-overview__data .perk-page .perk-page__item--active img')
       .map(getPerkIdFromImg)
       .get();
 
-    // stat shards
-    selectedPerkIds = selectedPerkIds.concat(
+    // Stat shards
+		selectedPerkIds = selectedPerkIds.concat(
       $(runePageElement)
         .find('.champion-overview__data .fragment-page img.active')
         .map(getPerkIdFromImg)
         .get()
     );
 
-    return {
-      name,
-      primaryStyleId: styles[0],
-      subStyleId: styles[1],
-      selectedPerkIds,
-      bookmark: {
-        src: url + champion + '/statistics/' + position,
-        meta: {
-          pageType: index,
-          champion
-        },
-        remote: {
-          name: 'OP.GG',
-          id: 'opgg'
-        }
-      }
-    };
-  };
+		return {
+			name,
+			primaryStyleId: styles[0],
+			subStyleId: styles[1],
+			selectedPerkIds,
+			bookmark: {
+				src: url + champion + '/statistics/' + position,
+				meta: {
+					pageType: index,
+					champion
+				},
+				remote: {
+					name: 'OP.GG',
+					id: 'opgg'
+				}
+			}
+		};
+	};
 }
 
 function parsePage($, champion, position) {
-  return $("tbody[class*='ChampionKeystoneRune-'] tr")
+	return $('tbody[class*=\'ChampionKeystoneRune-\'] tr')
     .toArray()
     .map(extractRunePagesFromElement($, champion, position));
 }
 
 function parseSinglePage($, champion, position, pageType) {
-  const element = $("tbody[class*='ChampionKeystoneRune-'] tr").get(pageType);
-  return extractRunePagesFromElement($, champion, position)(element, pageType);
+	const element = $('tbody[class*=\'ChampionKeystoneRune-\'] tr').get(pageType);
+	return extractRunePagesFromElement($, champion, position)(element, pageType);
 }
 
 function extractPages(html, champion, callback) {
-  const $ = cheerio.load(html);
-  let pages = [];
-  let initialPosition;
+	const $ = cheerio.load(html);
+	let pages = [];
+	let initialPosition;
 
-  const positions = $('.champion-stats-position li')
+	const positions = $('.champion-stats-position li')
     .map((_, element) => {
-      if (element.attribs['class'].indexOf('champion-stats-header__position--active') !== -1) {
-        initialPosition = element.attribs['data-position'].toLowerCase();
-      }
+	if (element.attribs.class.indexOf('champion-stats-header__position--active') !== -1) {
+		initialPosition = element.attribs['data-position'].toLowerCase();
+	}
 
-      return element.attribs['data-position'].toLowerCase();
-    })
+	return element.attribs['data-position'].toLowerCase();
+})
     .get();
 
-  pages = pages.concat(parsePage($, champion, initialPosition));
+	pages = pages.concat(parsePage($, champion, initialPosition));
 
-  positions.splice(positions.indexOf(initialPosition), 1);
+	positions.splice(positions.indexOf(initialPosition), 1);
 
-  if (positions.length) {
-    positions.forEach((position, index) => {
-      const opggUrl = url + champion + '/statistics/' + position;
-      request.get(opggUrl, (error, response, newHtml) => {
-        if (!error && response.statusCode === 200) {
-          pages = pages.concat(parsePage(cheerio.load(newHtml), champion, position));
-          if (index === positions.length - 1) {
-            callback(pages);
-          }
-        }
-      });
-    });
-  } else {
-    callback(pages);
-  }
+	if (positions.length === 0) {
+		callback(pages);
+	} else {
+		positions.forEach((position, index) => {
+			const opggUrl = url + champion + '/statistics/' + position;
+			request.get(opggUrl, (error, response, newHtml) => {
+				if (!error && response.statusCode === 200) {
+					pages = pages.concat(parsePage(cheerio.load(newHtml), champion, position));
+					if (index === positions.length - 1) {
+						callback(pages);
+					}
+				}
+			});
+		});
+	}
 }
 
 function _getPages(champion, callback) {
-  const runePages = { pages: {} };
+	const runePages = {pages: {}};
 
-  const entryChampUrl = url + champion;
-  request.get(entryChampUrl, (error, response, html) => {
-    if (!error && response.statusCode === 200) {
-      extractPages(html, champion, pages => {
-        pages.forEach(page => {
-          runePages.pages[page.name] = page;
-        });
-        callback(runePages);
-      });
-    } else {
-      callback(runePages);
-      throw Error('rune page not loaded');
-    }
-  });
+	const entryChampUrl = url + champion;
+	request.get(entryChampUrl, (error, response, html) => {
+		if (!error && response.statusCode === 200) {
+			extractPages(html, champion, pages => {
+				pages.forEach(page => {
+					runePages.pages[page.name] = page;
+				});
+				callback(runePages);
+			});
+		} else {
+			callback(runePages);
+			throw new Error('rune page not loaded');
+		}
+	});
 }
 
 const plugin = {
-  id: 'opgg',
-  name: 'OP.GG',
-  active: true,
-  bookmarks: true,
-  getPages(champion, callback) {
-    _getPages(champion, callback);
-  },
-  syncBookmark(bookmark, callback) {
-    request.get(bookmark.src, (error, response, html) => {
-      if (!error && response.statusCode == 200) {
-        const position = bookmark.src.split('/').pop();
-        callback(
+	id: 'opgg',
+	name: 'OP.GG',
+	active: true,
+	bookmarks: true,
+	getPages(champion, callback) {
+		_getPages(champion, callback);
+	},
+	syncBookmark(bookmark, callback) {
+		request.get(bookmark.src, (error, response, html) => {
+			if (!error && response.statusCode === 200) {
+				const position = bookmark.src.split('/').pop();
+				callback(
           parseSinglePage(
             cheerio.load(html),
             bookmark.meta.champion,
@@ -146,11 +146,11 @@ const plugin = {
             bookmark.meta.pageType
           )
         );
-      } else {
-        throw Error('rune page not loaded');
-      }
-    });
-  }
+			} else {
+				throw new Error('rune page not loaded');
+			}
+		});
+	}
 };
 
-module.exports = { plugin };
+module.exports = {plugin};

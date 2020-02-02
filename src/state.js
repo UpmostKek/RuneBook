@@ -1,9 +1,9 @@
-var Freezer = require('freezer-js');
+const Freezer = require('freezer-js');
 
-var state = {
+const state = {
 	session: {
 		connected: false,
-		state: ""
+		state: ''
 
 	},
 
@@ -14,15 +14,15 @@ var state = {
 
 	current: {
 		champion: null,
-		champ_data: {
+		champdata: {
 			fav: null,
-			pages: {},
-		},
+			pages: {}
+		}
 	},
 
 	tab: {
-		active: "local",
-		loaded: true,
+		active: 'local',
+		loaded: true
 	},
 
 	lastuploadedpage: {
@@ -50,8 +50,8 @@ var state = {
 	lang: 'en',
 
 	configfile: {
-		name: "config.json",
-		cwd: "[default path]"
+		name: 'config.json',
+		cwd: '[default path]'
 	},
 
 	championsinfo: {},

@@ -1,39 +1,40 @@
 const WebSocket = require('ws');
 const request = require('request');
+const freezer = require('./state');
 
-var ws = null;
-var conn_data = null;
+let ws = null;
+let connectionData = null;
 
 function bind(data) {
-	conn_data = data;
-	ws = new WebSocket(`wss://${data.username}:${data.password}@${data.address}:${data.port}/`, "wamp", {
-		rejectUnauthorized: false,
+	connectionData = data;
+	ws = new WebSocket(`wss://${data.username}:${data.password}@${data.address}:${data.port}/`, 'wamp', {
+		rejectUnauthorized: false
 	});
 
-	ws.on('error', (err) => {
+	ws.on('error', err => {
 		console.log(err);
 		if (err.message.includes('ECONNREFUSED')) {
 			destroy();
-			setTimeout(function () {
+			setTimeout(() => {
 				bind(data);
 			}, 1000);
 		}
 	});
 
-	ws.on('message', (msg) => {
-		var res;
+	ws.on('message', msg => {
+		let res;
 		try {
 			res = JSON.parse(msg);
-		} catch(e) {
-			console.log(e);
+		} catch (err) {
+			console.log(err);
 		}
-		if(res[0] === 0) {
-			console.log("connected", res);
+		if (res[0] === 0) {
+			console.log('connected', res);
 			freezer.emit(`api:connected`);
 		}
-		if(res[1] == "OnJsonApiEvent") {
-			var evt = res[2];
-			//console.log(`${evt.uri}:${evt.eventType}`);
+		if (res[1] === 'OnJsonApiEvent') {
+			const evt = res[2];
+			// Console.log(`${evt.uri}:${evt.eventType}`);
 			freezer.emit(`${evt.uri}:${evt.eventType}`, evt.data);
 		}
 	});
@@ -44,30 +45,30 @@ function bind(data) {
 }
 
 function destroy() {
-	ws.removeEventListener()
+	ws.removeEventListener();
 	ws = null;
 }
 
-var methods = {};
-["post", "put", "get", "del"].forEach(function(method) {
-	methods[method] = function(endpoint, body) {
-		return new Promise(resolve => {	
-			var options = {
-				url: `${conn_data.protocol}://${conn_data.address}:${conn_data.port}${endpoint}`,
+const methods = {};
+['post', 'put', 'get', 'del'].forEach(method => {
+	methods[method] = function (endpoint, body) {
+		return new Promise(resolve => {
+			const options = {
+				url: `${connectionData.protocol}://${connectionData.address}:${connectionData.port}${endpoint}`,
 				auth: {
-					"user": conn_data.username,
-					"pass": conn_data.password
+					user: connectionData.username,
+					pass: connectionData.password
 				},
 				headers: {
-					'Accept': 'application/json'
+					Accept: 'application/json'
 				},
 				json: true,
-				body: body,
+				body,
 				rejectUnauthorized: false
 			};
 
 			request[method](options, (error, response, data) => {
-				if (error || response.statusCode != 200) {
+				if (error || response.statusCode !== 200) {
 					resolve();
 					return;
 				}

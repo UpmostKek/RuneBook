@@ -1,152 +1,156 @@
-var request = require('request');
-var runeforge;
-var connected = false;
+const request = require('request');
+
+let runeforge;
+let connected = false;
 
 function connect(callback) {
-	request.post("http://runeforge.gg/all-loadouts-data.json", (error, response, data) => {
-		if(!error && response.statusCode == 200) {
+	request.post('http://runeforge.gg/all-loadouts-data.json', (error, response, data) => {
+		if (!error && response.statusCode === 200) {
 			runeforge = JSON.parse(data);
 			callback(true);
-		}
-		else {
+		} else {
 			callback(false);
-			throw Error("runeforge json not loaded");
+			throw new Error('runeforge json not loaded');
 		}
 	});
 }
 
-connect((res) => { connected = res; });
+connect(res => {
+	connected = res;
+});
 
-var cheerio = require('cheerio');
+const cheerio = require('cheerio');
 
-var stylesMap = {
-	"Precision":8000,
-	"Domination":8100,
-	"Sorcery":8200,
-	"Resolve":8400,
-	"Inspiration":8300
+const stylesMap = {
+	Precision: 8000,
+	Domination: 8100,
+	Sorcery: 8200,
+	Resolve: 8400,
+	Inspiration: 8300
 };
-var perksMap = {
-	"Press the Attack":8005,
-	"Lethal Tempo":8008,
-	"Fleet Footwork":8021,
-	"Conqueror":8010,
-	"Overheal":9101,
-	"Triumph":9111,
-	"Presence of Mind":8009,
-	"Legend: Alacrity":9104,
-	"Legend: Tenacity":9105,
-	"Legend: Bloodline":9103,
-	"Coup De Grace":8014,
-	"Cut Down":8017,
-	"Last Stand":8299,
-	"Electrocute":8112,
-	"Predator":8124,
-	"Dark Harvest":8128,
-	"Cheap Shot":8126,
-	"Taste of Blood":8139,
-	"Sudden Impact":8143,
-	"Zombie Ward":8136,
-	"Ghost Poro":8120,
-	"Eyeball Collection":8138,
-	"Ravenous Hunter":8135,
-	"Ingenious Hunter":8134,
-	"Relentless Hunter":8105,
-	"Summon Aery":8214,
-	"Arcane Comet":8229,
-	"Phase Rush":8230,
-	"Nullifying Orb":8224,
-	"Manaflow Band":8226,
-	"The Ultimate Hat":8243,
-	"Transcendence":8210,
-	"Celerity":8234,
-	"Absolute Focus":8233,
-	"Scorch":8237,
-	"Waterwalking":8232,
-	"Gathering Storm":8236,
-	"Grasp of the Undying":8437,
-	"Aftershock":8439,
-	"Guardian":8465,
-	"Unflinching":8242,
-	"Demolish":8446,
-	"Font of Life":8463,
-	"Chrysalis":8472,
-	"Conditioning":8429,
-	"Overgrowth":8451,
-	"Revitalize":8453,
-	"Second Wind":8444,
-	"Unsealed Spellbook":8360,
-	"Glacial Augment":8351,
-	"Kleptomancy":8359,
-	"Hextech Flashtraption":8306,
-	"Biscuit Delivery":8345,
-	"Perfect Timing":8313,
-	"Magical Footwear":8304,
-	"Future’s Market":8321,
-	"Minion Dematerializer":8316,
-	"Cosmic Insight":8347,
-	"Approach Velocity":8410,
-	"Celestial Body":8339,
-	"Bone Plating":8473,
-	"Time Warp Tonic":8352,
-	"Hail of Blades":9923,
-	"Ultimate Hunter":8106,
-	"Nimbus Cloak":8275,
-	"Shield Bash":8401
-};
-
-var shardsMap = {
-	"shard-health": 5001,
-	"shard-armor": 5002,
-	"shard-mr": 5003,
-	"shard-as": 5005,
-	"shard-cdr": 5007,
-	"shard-af": 5008,
-
-	"shard-armor-1": 5002,
-	"shard-hybrid-2-1": 5002,
-	"shard-hybrid": 5002
+const perksMap = {
+	'Press the Attack': 8005,
+	'Lethal Tempo': 8008,
+	'Fleet Footwork': 8021,
+	Conqueror: 8010,
+	Overheal: 9101,
+	Triumph: 9111,
+	'Presence of Mind': 8009,
+	'Legend: Alacrity': 9104,
+	'Legend: Tenacity': 9105,
+	'Legend: Bloodline': 9103,
+	'Coup De Grace': 8014,
+	'Cut Down': 8017,
+	'Last Stand': 8299,
+	Electrocute: 8112,
+	Predator: 8124,
+	'Dark Harvest': 8128,
+	'Cheap Shot': 8126,
+	'Taste of Blood': 8139,
+	'Sudden Impact': 8143,
+	'Zombie Ward': 8136,
+	'Ghost Poro': 8120,
+	'Eyeball Collection': 8138,
+	'Ravenous Hunter': 8135,
+	'Ingenious Hunter': 8134,
+	'Relentless Hunter': 8105,
+	'Summon Aery': 8214,
+	'Arcane Comet': 8229,
+	'Phase Rush': 8230,
+	'Nullifying Orb': 8224,
+	'Manaflow Band': 8226,
+	'The Ultimate Hat': 8243,
+	Transcendence: 8210,
+	Celerity: 8234,
+	'Absolute Focus': 8233,
+	Scorch: 8237,
+	Waterwalking: 8232,
+	'Gathering Storm': 8236,
+	'Grasp of the Undying': 8437,
+	Aftershock: 8439,
+	Guardian: 8465,
+	Unflinching: 8242,
+	Demolish: 8446,
+	'Font of Life': 8463,
+	Chrysalis: 8472,
+	Conditioning: 8429,
+	Overgrowth: 8451,
+	Revitalize: 8453,
+	'Second Wind': 8444,
+	'Unsealed Spellbook': 8360,
+	'Glacial Augment': 8351,
+	Kleptomancy: 8359,
+	'Hextech Flashtraption': 8306,
+	'Biscuit Delivery': 8345,
+	'Perfect Timing': 8313,
+	'Magical Footwear': 8304,
+	'Future’s Market': 8321,
+	'Minion Dematerializer': 8316,
+	'Cosmic Insight': 8347,
+	'Approach Velocity': 8410,
+	'Celestial Body': 8339,
+	'Bone Plating': 8473,
+	'Time Warp Tonic': 8352,
+	'Hail of Blades': 9923,
+	'Ultimate Hunter': 8106,
+	'Nimbus Cloak': 8275,
+	'Shield Bash': 8401
 };
 
-function exctractPage(html, pageUrl) {
-	console.log(pageUrl)
-	var $ = cheerio.load(html);
+const shardsMap = {
+	'shard-health': 5001,
+	'shard-armor': 5002,
+	'shard-mr': 5003,
+	'shard-as': 5005,
+	'shard-cdr': 5007,
+	'shard-af': 5008,
 
-	if(typeof pageUrl === "undefined") {
-		pageUrl = $("link[rel='canonical']").attr("href");
+	'shard-armor-1': 5002,
+	'shard-hybrid-2-1': 5002,
+	'shard-hybrid': 5002
+};
+
+function extractPage(html, pageUrl) {
+	console.log(pageUrl);
+	const $ = cheerio.load(html);
+
+	if (typeof pageUrl === 'undefined') {
+		pageUrl = $('link[rel=\'canonical\']').attr('href');
 	}
 
-	var path = $("div.rune-paths").first();
+	const path = $('div.rune-paths').first();
 
-	var name = $(".loadout-title").text();
-	if(name.length > 22) name = name.substring(0, 22) + "..."
+	let name = $('.loadout-title').text();
+	if (name.length > 22) {
+		name = name.substring(0, 22) + '...';
+	}
 
-	var page = {
-			"name": name,
-			"primaryStyleId": -1,
-			"selectedPerkIds": [0, 0, 0, 0, 0, 0, 0, 0, 0],
-			"subStyleId": -1,
-			"bookmark": { "src": pageUrl, "remote": { "name": plugin.name, "id": plugin.id } }
-		};
+	const page = {
+		name,
+		primaryStyleId: -1,
+		selectedPerkIds: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+		subStyleId: -1,
+		bookmark: {src: pageUrl, remote: {name: plugin.name, id: plugin.id}}
+	};
 
-	var data = [];
-	$("li.rune-path--rune", path).each(function() {
-		data.push($(this).attr("data-link-title"));
+	const data = [];
+	$('li.rune-path--rune', path).each(function () {
+		data.push($(this).attr('data-link-title'));
 	});
 
-	page.primaryStyleId = stylesMap[$("div.rune-path--primary .rune-path--path", path).attr("data-content-title")];
-	page.subStyleId = stylesMap[$("div.rune-path--secondary .rune-path--path", path).attr("data-content-title")];
+	page.primaryStyleId = stylesMap[$('div.rune-path--primary .rune-path--path', path).attr('data-content-title')];
+	page.subStyleId = stylesMap[$('div.rune-path--secondary .rune-path--path', path).attr('data-content-title')];
 
-	for(var i = 0; i < data.length; i++) {
+	for (let i = 0; i < data.length; i++) {
 		page.selectedPerkIds[i] = perksMap[data[i]];
 	}
 
-	var shards = [];
+	const shards = [];
 
-	var shardsPath = $("div.stat-shards").first();
-	$("img", shardsPath).each(function() {
-		var shardLink = $(this).attr("src").split("/");
-		var shardName = shardLink[shardLink.length - 1].replace(".svg", "");
+	const shardsPath = $('div.stat-shards').first();
+	$('img', shardsPath).each(function () {
+		const shardLink = $(this).attr('src').split('/');
+		const shardName = shardLink[shardLink.length - 1].replace('.svg', '');
 		shards.push(shardsMap[shardName]);
 	});
 
@@ -154,70 +158,76 @@ function exctractPage(html, pageUrl) {
 	page.selectedPerkIds[7] = shards[1];
 	page.selectedPerkIds[8] = shards[2];
 
-	console.log(page)
+	console.log(page);
 	return page;
 }
 
 function _getPages(champion, callback) {
-	var res = {pages: {}};
+	const res = {pages: {}};
 
-	if(!runeforge) return callback(res);
+	if (!runeforge) {
+		return callback(res);
+	}
 
-	var pageUrls = [];
+	const pageUrls = [];
 
-	for(var i = 0; i < runeforge.length; i++) {
-		var pageData = runeforge[i];
-		var sep = pageData.loadout_champion_grid.split("/");
-		sep = sep[sep.length - 1].split(".")[0];
-		if(champion == sep) {
+	for (let i = 0; i < runeforge.length; i++) {
+		const pageData = runeforge[i];
+		let sep = pageData.loadout_champion_grid.split('/');
+		sep = sep[sep.length - 1].split('.')[0];
+		if (champion === sep) {
 			pageUrls.push(pageData.loadout_url);
 		}
 	}
 
-	if(pageUrls.length === 0) return callback(res);
+	if (pageUrls.length === 0) {
+		return callback(res);
+	}
 
-	var callCount = 0;
-	for(var i = 0; i < pageUrls.length; i++) {
-
+	let callCount = 0;
+	for (let i = 0; i < pageUrls.length; i++) {
 		request.post(pageUrls[i], (error, response, html) => {
-			if(!error && response.statusCode == 200) {
-				var page = exctractPage(html);
+			if (!error && response.statusCode === 200) {
+				const page = extractPage(html);
 				res.pages[page.name] = page;
-				if(++callCount == pageUrls.length) callback(res);
-			}
-			else {
+				if (++callCount === pageUrls.length) {
+					callback(res);
+				}
+			} else {
 				callback(res);
-				throw Error("rune page not loaded");
+				throw new Error('rune page not loaded');
 			}
 		});
 	}
 }
 
-var plugin = {
-	id: "runeforge",
-	name: "Rune Forge",
+const plugin = {
+	id: 'runeforge',
+	name: 'Rune Forge',
 	active: true,
 	bookmarks: true,
 
 	getPages(champion, callback) {
-		if(!connected) connect((res) => {
-			connected = res;
+		if (connected) {
 			_getPages(champion, callback);
-		});
-		else _getPages(champion, callback);
+		} else {
+			connect(res => {
+				connected = res;
+				_getPages(champion, callback);
+			});
+		}
 	},
 
 	syncBookmark(bookmark, callback) {
 		request.post(bookmark.src, (error, response, html) => {
-			if(!error && response.statusCode == 200) {
-				callback(exctractPage(html, bookmark.src));
-			}
-			else {
+			if (!error && response.statusCode === 200) {
+				callback(extractPage(html, bookmark.src));
+			} else {
 				callback();
-				throw Error("rune page not loaded");
+				throw new Error('rune page not loaded');
 			}
 		});
 	}
-}
+};
 
-module.exports = { plugin };
+module.exports = {plugin};

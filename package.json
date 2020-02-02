@@ -11,7 +11,8 @@
     "url": "https://github.com/OrangeNote"
   },
   "scripts": {
-    "test": "xo",
+    "lint": "xo",
+    "lint:fix": "xo --fix",
     "start": "electron ./src/main.js",
     "build": "electron-packager . --out=dist --asar --overwrite --all",
     "pack": "electron-builder --dir",

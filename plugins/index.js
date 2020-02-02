@@ -1,42 +1,41 @@
-var isDev = require('electron-is-dev');
+const isDev = require('electron-is-dev');
 
-if (!isDev) {
-  var plugins = ["local", "runeforge", "championgg", "koreanbuilds", "runeslol", "opgg", "ugg"];
+if (isDev) {
+	console.log('isDev: dynamic plugins loader');
+	const fs = require('fs');
+	const path = require('path');
 
-  var __hasProp = {}.hasOwnProperty;
+	const __hasProp = {}.hasOwnProperty;
 
-  for(var i = 0; i < plugins.length; i++) {
-    var name = plugins[i];
-    var include = require(`./${name}.js`);
-    for(func in include) {
-      if(!__hasProp.call(include, func) || !include[func].active) continue;
-      module.exports[name] = include[func];
-    }
-  }
+	const collectExports = function (file) {
+		if (path.extname(file) === '.js' && file !== 'index.js' && file !== 'utils.js') {
+			const include = require('./' + file);
+			const name = path.basename(file, '.js');
+			const _results = [];
+			for (const func in include) {
+				if (!__hasProp.call(include, func) || !include[func].active) {
+					continue;
+				}
+				_results.push(exports[name] = include[func]);
+			}
+			return _results;
+		}
+	};
 
-}
-else {
-  console.log("isDev: dynamic plugins loader")
-  var collectExports, fs, path,
-  fs = require('fs');
-  path = require('path');
+	fs.readdirSync('./plugins').forEach(collectExports);
+} else {
+	const plugins = ['local', 'runeforge', 'championgg', 'koreanbuilds', 'runeslol', 'opgg', 'ugg'];
 
-  var __hasProp = {}.hasOwnProperty;
+	const __hasProp = {}.hasOwnProperty;
 
-  collectExports = function(file) {
-    var func, include, _results, name;
-
-    if (path.extname(file) === '.js' && file !== 'index.js' && file !== 'utils.js') {
-      include = require('./' + file);
-      name = path.basename(file, '.js');
-      _results = [];
-      for (func in include) {
-        if (!__hasProp.call(include, func) || !include[func].active) continue;
-        _results.push(exports[name] = include[func]);
-      }
-      return _results;
-    }
-  };
-
-  fs.readdirSync('./plugins').forEach(collectExports);
+	for (let i = 0; i < plugins.length; i++) {
+		const name = plugins[i];
+		const include = require(`./${name}.js`);
+		for (const func in include) {
+			if (!__hasProp.call(include, func) || !include[func].active) {
+				continue;
+			}
+			module.exports[name] = include[func];
+		}
+	}
 }
