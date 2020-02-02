@@ -38,11 +38,11 @@ connector.on('disconnect', () => {
 // Start listening for the LCU client
 connector.start();
 
-ipcRenderer.on('update:ready', (event, arg) => {
+ipcRenderer.on('update:ready', event => {
 	console.log('github new latest found');
 	freezer.get().set('updateready', true);
 });
-ipcRenderer.on('update:downloaded', (event, arg) => {
+ipcRenderer.on('update:downloaded', event => {
 	console.log('update downloaded');
 	freezer.emit('update:downloaded');
 });

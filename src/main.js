@@ -178,7 +178,7 @@ autoUpdater.on('update-downloaded', () => {
 });
 
 // When receiving a quitAndInstall signal, quit and install the new version ;)
-ipcMain.on('update:do', (event, arg) => {
+ipcMain.on('update:do', event => {
 	if (process.platform === 'darwin') {
 		win.webContents.send('update:downloaded');
 		shell.openExternal(`https://github.com/OrangeNote/RuneBook/releases/download/v${latestv}/RuneBook-${latestv}-mac.zip`);
